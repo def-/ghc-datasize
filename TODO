@@ -1,0 +1,2 @@
+-- λ> recursiveSize $! 2^10000000
+-- <interactive>: internal error: allocation of 1250048 bytes too large (GHC should have complained at compile-time)
