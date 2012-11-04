@@ -41,7 +41,8 @@ closureSize x = do
 --   @
 --    recursiveSize $!! \"foobar\"
 --   @
---   ($!! from Control.DeepSeq) to force full evaluation before calulating the size.
+--   ($!! from Control.DeepSeq) to force full evaluation before calculating the
+--   size.
 --
 --   A garbage collection is performed before the size is calculated, because
 --   the garbage collector would make heap walks difficult.
