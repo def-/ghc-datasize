@@ -21,6 +21,7 @@ Library
   Exposed-modules: GHC.DataSize
   Default-Language: Haskell2010
   Build-depends: base == 4.*,
+                 --containers,
                  ghc-heap-view >= 0.3.0.3
   Hs-source-dirs: src/
   Ghc-options: -Wall

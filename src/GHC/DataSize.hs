@@ -7,6 +7,7 @@
 module GHC.DataSize (
   closureSize,
   recursiveSize
+  --mSize
   )
   where
 
@@ -17,6 +18,11 @@ import GHC.Constants (wORD_SIZE)
 import Control.Monad
 
 import System.Mem
+
+--import qualified Data.IntMap as IntMap
+
+--depth :: Int
+--depth = 10^10
 
 -- Inspired by Simon Marlow:
 -- https://ghcmutterings.wordpress.com/2009/02/12/53/
@@ -46,6 +52,20 @@ closureSize x = do
 --
 --   A garbage collection is performed before the size is calculated, because
 --   the garbage collector would make heap walks difficult.
+
+--recursiveSize x = do
+--    performGC
+--    HeapGraph graph <- buildHeapGraph depth (asBox x)
+--    foldM go 0 $ IntMap.elems graph
+--  where
+--    go i (HeapGraphEntry wb _) = do
+--        mb <- derefWeakBox wb
+--        case mb of
+--          Nothing -> return i
+--          Just (Box a) -> do
+--            size <- closureSize a
+--            return $! i + size
+
 recursiveSize :: Num b => a -> IO b
 recursiveSize x = do
   performGC
@@ -57,3 +77,14 @@ recursiveSize x = do
              closure <- getClosureData y
              --putStrLn $ (show b) ++ " | " ++ (show closure)
              foldM go (b : vs, acc + size) $ allPtrs closure
+
+--mSize xs = do
+--  performGC
+--  liftM snd $ foldM go ([], 0) xs
+--  where go (vs, acc) b@(Box y)
+--          | b `elem` vs = return (vs, acc)
+--          | otherwise   = do
+--             size    <- closureSize y
+--             closure <- getClosureData y
+--             --putStrLn $ (show b) ++ " | " ++ (show closure)
+--             foldM go (b : vs, acc + size) $ allPtrs closure
