@@ -1,0 +1,107 @@
+The ghc-datasize User Guide
+===========================
+Dennis Felsing <dennis@felsin9.de>
+June 2013
+:toc2:
+:numbered:
+
+ghc-datasize is a tool to determine the size of Haskell data structures in
+GHC's memory. Determining the size of recursive data structures is supported.
+All sizes are in Bytes.
+
+== Installation
+
+The http://hackage.haskell.org/package/ghc-datasize[package] is available on
+Hackage. Install it like this:
+
+----
+$ cabal install ghc-datasize
+----
+
+If you want to make sure you get the newest version of ghc-datasize update
+your cabal database before:
+
+----
+$ cabal update
+----
+
+== Usage
+
+Now you can run ghci and experiment with ghc-datasize:
+
+----
+$ ghci
+GHCi, version 7.6.3: http://www.haskell.org/ghc/  :? for help
+λ> import GHC.DataSize
+λ> recursiveSize 3.3
+16
+λ> recursiveSize 'a'
+16
+λ> recursiveSize (1,2,3,4)
+104
+λ> recursiveSize True
+8
+λ> import Data.Complex
+λ> recursiveSize $ 2 :+ 3
+248
+----
+
+For data structures that are not yet evaluated the size of the unevaluated
+structure in memory is calculated. To make sure you get the size of the
+resulting data structure, you have to force evaluation to Weak-Head Normal
+Form (WHNF):
+
+----
+λ> recursiveSize $! 2 :+ 3
+56
+λ> recursiveSize $! (3 :: Int)
+16
+λ> recursiveSize $! (3 :: Integer)
+16
+λ> recursiveSize $! (2^64 :: Integer)
+56
+λ> recursiveSize $! (2^128 :: Integer)
+72
+λ> recursiveSize $! (2^1024 :: Integer)
+184
+λ> recursiveSize $! "foo"
+88
+λ> recursiveSize $! "foobar"
+88
+----
+
+For composite data structures evaluation to WHNF is not enough. In the list
+"foo" only the first element, 'f', was evaluated, while the rest of the list
+stays unevaluated. To get the size of the fully evaluated data structure a
+deep evaluation has to be forced:
+
+----
+λ> import Control.DeepSeq
+λ> recursiveSize $!! ""
+8
+λ> recursiveSize $!! "foo"
+128
+λ> recursiveSize $!! "foobar"
+248
+λ> import qualified Data.ByteString.Char8 as B
+λ> recursiveSize $!! take 1000 $ repeat 'X'
+24024
+λ> recursiveSize $!! B.pack $ take 1000 $ repeat 'X'
+1072
+----
+
+Strings are quite memory intensive, taking 24024 Bytes to store 1000 8-bit
+Chars. ByteStrings are much more memory friendly, taking only 1072 Bytes for
+the same data.
+
+== Related Projects
+
+If you're not just interested in the size of Haskell data, but also their
+structure in memory, have a look at link:../ghc-vis[ghc-vis].
+
+== Bugs, Feature Requests, Development
+
+If you have any problems, new ideas or comments concerning ghc-datasize, just
+drop me an email. I'll be glad to help you.
+
+// vim: set syntax=asciidoc:
