@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE CPP #-}
 {- |
    Module      : GHC.DataSize
@@ -65,7 +66,7 @@ recursiveSize :: a -> IO Word
 recursiveSize x = do
   performGC
   liftM snd $ go ([], 0) $ asBox x
-  where go (vs, acc) b@(Box y) = do
+  where go (!vs, !acc) b@(Box y) = do
           isElem <- liftM or $ mapM (areBoxesEqual b) vs
           if isElem
             then return (vs, acc)
