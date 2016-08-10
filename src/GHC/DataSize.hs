@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {- |
    Module      : GHC.DataSize
    Copyright   : (c) Dennis Felsing
@@ -13,11 +14,14 @@ module GHC.DataSize (
 
 import GHC.HeapView hiding (size)
 
-import GHC.Constants (wORD_SIZE)
-
 import Control.Monad
 
 import System.Mem
+
+-- This used to be available via GHC.Constants
+#include "MachDeps.h"
+wORD_SIZE :: Int
+wORD_SIZE = SIZEOF_HSWORD
 
 --import qualified Data.IntMap as IntMap
 
