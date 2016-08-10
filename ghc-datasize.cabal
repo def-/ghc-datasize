@@ -28,4 +28,4 @@ Library
 
 source-repository head
     type:     git
-    location: git://r0q.ath.cx/ghc-datasize
+    location: https://github.com/def-/ghc-datasize.git
