@@ -61,6 +61,11 @@ closureSize x = do
 --
 --   A garbage collection is performed before the size is calculated, because
 --   the garbage collector would make heap walks difficult.
+--
+--   This function works very quickly on small data structures, but can be slow
+--   on large and complex ones. If speed is an issue it's probably possible to
+--   get the exact size of a small portion of the data structure and then
+--   estimate the total size from that.
 
 recursiveSize :: a -> IO Word
 recursiveSize x = do
