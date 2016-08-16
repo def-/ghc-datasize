@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE CPP #-}
 {- |
    Module      : GHC.DataSize
@@ -11,6 +12,10 @@ module GHC.DataSize (
   --mSize
   )
   where
+
+#if __GLASGOW_HASKELL < 708
+import Data.Word (Word)
+#endif
 
 import GHC.HeapView hiding (size)
 
@@ -33,7 +38,7 @@ wORD_SIZE = SIZEOF_HSWORD
 
 -- | Calculate size of GHC objects in Bytes. Note that an object may not be
 --   evaluated yet and only the size of the initial closure is returned.
-closureSize :: Num b => a -> IO b
+closureSize :: a -> IO Word
 closureSize x = do
   (_,y,_) <- getClosureRaw x
   return . fromIntegral $ length y * wORD_SIZE
@@ -56,12 +61,17 @@ closureSize x = do
 --
 --   A garbage collection is performed before the size is calculated, because
 --   the garbage collector would make heap walks difficult.
+--
+--   This function works very quickly on small data structures, but can be slow
+--   on large and complex ones. If speed is an issue it's probably possible to
+--   get the exact size of a small portion of the data structure and then
+--   estimate the total size from that.
 
-recursiveSize :: Num b => a -> IO b
+recursiveSize :: a -> IO Word
 recursiveSize x = do
   performGC
   liftM snd $ go ([], 0) $ asBox x
-  where go (vs, acc) b@(Box y) = do
+  where go (!vs, !acc) b@(Box y) = do
           isElem <- liftM or $ mapM (areBoxesEqual b) vs
           if isElem
             then return (vs, acc)
