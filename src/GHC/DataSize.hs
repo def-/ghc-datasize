@@ -8,10 +8,12 @@
  -}
 module GHC.DataSize (
   closureSize,
-  recursiveSize
-  --mSize
+  recursiveSize,
+  recursiveSizeNF
   )
   where
+
+import Control.DeepSeq (NFData, force)
 
 #if __GLASGOW_HASKELL < 708
 import Data.Word (Word)
@@ -79,3 +81,11 @@ recursiveSize x = do
              size    <- closureSize y
              closure <- getClosureData y
              foldM go (b : vs, acc + size) $ allPtrs closure
+
+-- | Calculate the recursive size of GHC objects in Bytes after calling
+-- Control.DeepSeq.force on the data structure to force it into Normal Form.
+-- Using this function requires that the data structure has an `NFData`
+-- typeclass instance.
+
+recursiveSizeNF :: NFData a => a -> IO Word
+recursiveSizeNF = recursiveSize . force
