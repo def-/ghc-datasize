@@ -80,7 +80,7 @@ recursiveSize x = do
             else do
              size    <- closureSize y
              closure <- getClosureData y
-             foldM go (b : vs, acc + size) $ allPtrs closure
+             foldM go (b : vs, acc + size) $ allClosures closure
 
 -- | Calculate the recursive size of GHC objects in Bytes after calling
 -- Control.DeepSeq.force on the data structure to force it into Normal Form.
