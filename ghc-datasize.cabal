@@ -8,7 +8,7 @@ build-type:         Simple
 author:             Dennis Felsing <dennis@felsin9.de>
 maintainer:         Dennis Felsing <dennis@felsin9.de>
 homepage:           http://felsin9.de/nnis/ghc-datasize
-copyright:          Dennis Felsing 2012
+copyright:          Dennis Felsing 2012-2019
 synopsis:           Determine the size of data structures in GHC's memory
 description:        ghc-datasize is a tool to determine the size of data
                     structures in GHC's memory. Determining the size of
