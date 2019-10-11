@@ -27,11 +27,6 @@ import Control.Monad
 
 import System.Mem
 
---import qualified Data.IntMap as IntMap
-
---depth :: Int
---depth = 10^10
-
 -- Inspired by Simon Marlow:
 -- https://ghcmutterings.wordpress.com/2009/02/12/53/
 
