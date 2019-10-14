@@ -1,5 +1,7 @@
 {-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE UnboxedTuples #-}
+
 {- |
    Module      : GHC.DataSize
    Copyright   : (c) Dennis Felsing
@@ -15,25 +17,15 @@ module GHC.DataSize (
 
 import Control.DeepSeq (NFData, force)
 
-#if __GLASGOW_HASKELL < 708
 import Data.Word (Word)
-#endif
 
-import GHC.HeapView hiding (size)
+import GHC.Exts
+import GHC.Exts.Heap hiding (size)
+import GHC.Exts.Heap.Constants (wORD_SIZE)
 
 import Control.Monad
 
 import System.Mem
-
--- This used to be available via GHC.Constants
-#include "MachDeps.h"
-wORD_SIZE :: Int
-wORD_SIZE = SIZEOF_HSWORD
-
---import qualified Data.IntMap as IntMap
-
---depth :: Int
---depth = 10^10
 
 -- Inspired by Simon Marlow:
 -- https://ghcmutterings.wordpress.com/2009/02/12/53/
@@ -42,8 +34,8 @@ wORD_SIZE = SIZEOF_HSWORD
 --   evaluated yet and only the size of the initial closure is returned.
 closureSize :: a -> IO Word
 closureSize x = do
-  (_,y,_) <- getClosureRaw x
-  return . fromIntegral $ length y * wORD_SIZE
+  rawWds <- getClosureRawWords x
+  return . fromIntegral $ length rawWds * wORD_SIZE
 
 -- | Calculate the recursive size of GHC objects in Bytes. Note that the actual
 --   size in memory is calculated, so shared values are only counted once.
@@ -89,3 +81,16 @@ recursiveSize x = do
 
 recursiveSizeNF :: NFData a => a -> IO Word
 recursiveSizeNF = recursiveSize . force
+
+-- | Adapted from 'GHC.Exts.Heap.getClosureRaw' which isn't exported.
+--
+-- This returns the raw words of the closure on the heap. Once back in the
+-- Haskell world, the raw words that hold pointers may be outdated after a
+-- garbage collector run.
+getClosureRawWords :: a -> IO [Word]
+getClosureRawWords x = do
+    case unpackClosure# x of
+        (# _iptr, dat, _pointers #) -> do
+            let nelems = (I# (sizeofByteArray# dat)) `div` wORD_SIZE
+                end = fromIntegral nelems - 1
+            pure [W# (indexWordArray# dat i) | I# i <- [0.. end] ]
