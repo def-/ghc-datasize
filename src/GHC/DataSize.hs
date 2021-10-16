@@ -15,7 +15,7 @@ module GHC.DataSize (
   )
   where
 
-import Control.DeepSeq (NFData, force)
+import Control.DeepSeq (NFData, ($!!))
 
 import Data.Word (Word)
 
@@ -80,7 +80,7 @@ recursiveSize x = do
 -- typeclass instance.
 
 recursiveSizeNF :: NFData a => a -> IO Word
-recursiveSizeNF = recursiveSize . force
+recursiveSizeNF x = recursiveSize $!! x
 
 -- | Adapted from 'GHC.Exts.Heap.getClosureRaw' which isn't exported.
 --
