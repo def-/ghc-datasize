@@ -17,8 +17,6 @@ module GHC.DataSize (
 
 import Control.DeepSeq (NFData, ($!!))
 
-import Data.Word (Word)
-
 import GHC.Exts
 import GHC.Exts.Heap hiding (size)
 import GHC.Exts.Heap.Constants (wORD_SIZE)
