@@ -5,9 +5,9 @@ license-file:       LICENSE
 category:           GHC, Debug, Development
 cabal-version:      >= 1.10
 build-type:         Simple
-author:             Dennis Felsing <dennis@felsin9.de>
-maintainer:         Dennis Felsing <dennis@felsin9.de>
-homepage:           http://felsin9.de/nnis/ghc-datasize
+author:             Dennis Felsing <dennis@felsing.org>
+maintainer:         Dennis Felsing <dennis@felsing.org>
+homepage:           https://dennis.felsing.org/ghc-datasize
 copyright:          Dennis Felsing 2012-2019
 synopsis:           Determine the size of data structures in GHC's memory
 description:        ghc-datasize is a tool to determine the size of data
